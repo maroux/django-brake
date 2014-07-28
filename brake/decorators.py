@@ -77,7 +77,16 @@ def ratelimit(
             if response is None:
                 # If the response isn't HttpResponseTooManyRequests already, run
                 # the actual function to get the result.
-                response = fn(request, *args, **kw)
+                try:
+                    response = fn(request, *args, **kw)
+                except Exception, e:
+                    if _method_match(request, method) and \
+                            (increment is None or (callable(increment) and increment(
+                                request, e
+                            ))):
+                        _backend.count(func_name, request, ip, field, period)
+
+                    raise
 
             if _method_match(request, method) and \
                     (increment is None or (callable(increment) and increment(
