@@ -74,6 +74,9 @@ def ratelimit(
                     request.limited = True
                     request.limits = limits
 
+            if not hasattr(request, 'limited'):
+                request.limited = False
+
             if response is None:
                 # If the response isn't HttpResponseTooManyRequests already, run
                 # the actual function to get the result.
